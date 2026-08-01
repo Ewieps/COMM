@@ -10,8 +10,10 @@ type MoveRequestBody = {
 
 type DiscordMember = {
   user: { id: string; username: string };
+  nick?: string | null;
   // Note: /guilds/{id}/members/search matches by username or nickname prefix,
-  // so we still verify an exact case-insensitive username match ourselves.
+  // so we still verify an exact case-insensitive match (username OR nickname)
+  // ourselves, since the search itself is prefix-based, not exact.
 };
 
 type DiscordChannel = {
@@ -66,8 +68,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     const members = (await searchRes.json()) as DiscordMember[];
+    const target = robloxUsername.toLowerCase();
     const match = members.find(
-      (m) => m.user.username.toLowerCase() === robloxUsername.toLowerCase()
+      (m) =>
+        m.user.username.toLowerCase() === target ||
+        (m.nick && m.nick.toLowerCase() === target)
     );
 
     if (!match) {
