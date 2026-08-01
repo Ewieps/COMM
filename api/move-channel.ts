@@ -56,7 +56,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     );
 
     if (!searchRes.ok) {
-      return res.status(502).json({ status: 'ERROR', message: 'Discord member search failed' });
+      const errBody = await searchRes.text();
+      console.error('[move-channel] member search failed', searchRes.status, errBody);
+      return res.status(502).json({
+        status: 'ERROR',
+        message: `Discord member search failed (${searchRes.status})`,
+        discordError: errBody,
+      });
     }
 
     const members = (await searchRes.json()) as DiscordMember[];
@@ -76,7 +82,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     });
 
     if (!channelsRes.ok) {
-      return res.status(502).json({ status: 'ERROR', message: 'Discord channel lookup failed' });
+      const errBody = await channelsRes.text();
+      console.error('[move-channel] channel lookup failed', channelsRes.status, errBody);
+      return res.status(502).json({
+        status: 'ERROR',
+        message: `Discord channel lookup failed (${channelsRes.status})`,
+        discordError: errBody,
+      });
     }
 
     const channels = (await channelsRes.json()) as DiscordChannel[];
