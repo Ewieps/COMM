@@ -1,0 +1,7 @@
+{
+  "functions": {
+    "api/move-channel.ts": {
+      "maxDuration": 10
+    }
+  }
+}
